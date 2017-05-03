@@ -2,18 +2,19 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import sys, os
 
 try:
-	from moviepy.editor import *
+	from moviepy.editor import VideoFileClip
 except:
 	from imageio.plugins import ffmpeg
 	ffmpeg.download()
 finally:
-	from moviepy.editor import *
+	from moviepy.editor import VideoFileClip
 
 
 class DropField(QtWidgets.QTextEdit):
 	def __init__(self, parent=None):
 		super(DropField, self).__init__(parent)
 		self.setAcceptDrops(True)
+		self.setCursorWidth(0)
 
 		self.validFileExtList = [".mp4", ".avi"]
 
@@ -36,6 +37,7 @@ class DropField(QtWidgets.QTextEdit):
 		self.thr.start()
 
 	def onStarted(self):
+		self.clear()
 		self.setAcceptDrops(False)
 		self.setReadOnly(True)
 		self.setDisabled(True)
@@ -49,6 +51,8 @@ class DropField(QtWidgets.QTextEdit):
 class Window(QtWidgets.QWidget):
 	def __init__(self, parent=None):
 		super(Window, self).__init__(parent)
+
+		self.setWindowIcon(QtGui.QIcon('imgs/LarianLogo.png'))
 
 		self.vbox = QtWidgets.QVBoxLayout()
 
@@ -76,6 +80,12 @@ class Window(QtWidgets.QWidget):
 
 	def onVideoConvertFinished(self):
 		self.progressBar.setRange(0, 1)
+		self.showOnFinishMsgBox()
+
+	def showOnFinishMsgBox(self):
+
+		pass
+
 
 class VideoConvertionThread(QtCore.QThread):
 	def __init__(self, parent=None):
@@ -90,6 +100,7 @@ class VideoConvertionThread(QtCore.QThread):
 			os.makedirs(self.outputFolder)
 
 		for el in self.videoUrls:
+
 			fileName = el.path().split("/")[-1]
 			clip = VideoFileClip(el.path()[1:]).without_audio().set_fps(24)
 			clip.write_videofile(os.path.join(outputFolder, fileName), ffmpeg_params=["-crf", "33"], progress_bar=False)
