@@ -96,6 +96,8 @@ class VideoConvertionThread(QtCore.QThread):
 
 		self.videoUrls.clear()
 
+		os.startfile(outputFolder)
+
 	def setVideoUrls(self, urlsList):
 		self.videoUrls = urlsList
 
@@ -113,7 +115,15 @@ class OutLog:
 			self.edit.setTextColor(self.color)
 
 		self.edit.moveCursor(QtGui.QTextCursor.End)
-		self.edit.insertPlainText( m )
+
+		if "[MoviePy]" in m:
+			m = m.replace("[MoviePy] ", "")
+
+		if ">>>>" in m:
+			m = m.replace(">>>> ", "")
+
+		self.edit.insertPlainText(m)
+		self.edit.insertPlainText("\n")
 
 		if self.color:
 			self.edit.setTextColor(tc)
